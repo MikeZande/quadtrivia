@@ -28,4 +28,26 @@ public class OpenTriviaService {
             token = tokenResponse.token();
         }
     }
+
+    public String getQuestions(int amount, String category, String difficulty, String type) {
+        String uri = API_URI + "api.php?token=" + token;
+
+        uri += "&amount=" + amount;
+        if (category != null) {
+            uri += "&category=" + category;
+        }
+        if (difficulty != null) {
+            uri += "&difficulty=" + difficulty;
+        }
+        if (type != null) {
+            uri += "&type=" + type;
+        }
+
+        String result = restTemplate.getForObject(uri, String.class);
+        //TODO: Verify result
+
+        return result;
+    }
+
+    public void getQuestions() { getQuestions(10, null, null, null);}
 }
