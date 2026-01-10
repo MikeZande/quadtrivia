@@ -4,12 +4,10 @@ import com.mike.quadtrivia.enums.Difficulty;
 import com.mike.quadtrivia.enums.QuestionType;
 import com.mike.quadtrivia.models.OpenQuestion;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-@SpringBootTest
 public class DeserializationTests {
     @Test
     void testDifficultyDeserialization() {

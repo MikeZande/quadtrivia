@@ -10,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 
 /*
     Responsible for accessing the Open Trivia DB API.
-    As well as storing state regarding the session token.
  */
 @Service
 public class OpenTriviaService {
