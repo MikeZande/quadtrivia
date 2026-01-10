@@ -5,6 +5,7 @@ import com.mike.quadtrivia.models.GetQuestionResponse;
 import com.mike.quadtrivia.models.TokenResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 /*
@@ -37,7 +38,6 @@ public class OpenTriviaService {
 
     public GetQuestionResponse getQuestions(int amount, Integer category, String difficulty, String type) {
         String uri = API_URI + "api.php?token=" + token;
-        System.out.println(token);
 
         uri += "&amount=" + amount;
         if (category != null) {
@@ -54,6 +54,7 @@ public class OpenTriviaService {
             ResponseEntity<GetQuestionResponse> entity = restTemplate.getForEntity(uri, GetQuestionResponse.class);
             GetQuestionResponse response = entity.getBody();
 
+            // Refresh token when needed.
             if (response != null &&
                 (response.response_code() == ResponseCode.TOKEN_EMPTY ||
                 response.response_code() == ResponseCode.TOKEN_NOT_FOUND))
@@ -63,6 +64,9 @@ public class OpenTriviaService {
                 return getQuestions(amount, category, difficulty, type);
             }
             return response;
+        } catch (HttpClientErrorException e) {
+            // This should only happen when a rate limit happens.
+            return e.getResponseBodyAs(GetQuestionResponse.class);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;

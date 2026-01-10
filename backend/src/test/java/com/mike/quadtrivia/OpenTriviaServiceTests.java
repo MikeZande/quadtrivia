@@ -63,16 +63,14 @@ public class OpenTriviaServiceTests {
         // Exhaust the token.
         sleep();
         GetQuestionResponse result = triviaService.getQuestions(32, 30, null, null);
-        System.out.println(result);
         assert(result != null);
         assert(result.response_code() == ResponseCode.SUCCESS);
 
         // Now we check that the token gets refreshed by our service.
         sleep();
         result = triviaService.getQuestions(1, 30, null, null);
-        System.out.println(result);
         assert(result != null);
-        assert(result.response_code() == ResponseCode.TOKEN_EMPTY);
+        assert(result.response_code() == ResponseCode.SUCCESS);
     }
 
     private void sleep() {
