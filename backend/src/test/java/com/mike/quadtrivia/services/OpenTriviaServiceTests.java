@@ -1,8 +1,7 @@
-package com.mike.quadtrivia;
+package com.mike.quadtrivia.services;
 
 import com.mike.quadtrivia.enums.ResponseCode;
 import com.mike.quadtrivia.models.GetQuestionResponse;
-import com.mike.quadtrivia.services.OpenTriviaService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

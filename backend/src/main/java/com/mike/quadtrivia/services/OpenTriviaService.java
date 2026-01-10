@@ -35,7 +35,7 @@ public class OpenTriviaService {
         }
     }
 
-    public GetQuestionResponse getQuestions(int amount, Integer category, String difficulty, String type) {
+    GetQuestionResponse getQuestions(int amount, Integer category, String difficulty, String type) {
         String uri = API_URI + "api.php?token=" + token;
 
         uri += "&amount=" + amount;
@@ -72,7 +72,7 @@ public class OpenTriviaService {
         }
     }
 
-    public GetQuestionResponse getQuestions() {
+    GetQuestionResponse getQuestions() {
         return getQuestions(10, null, null, null);
     }
 }

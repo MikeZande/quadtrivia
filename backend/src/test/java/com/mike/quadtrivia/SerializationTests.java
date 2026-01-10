@@ -6,6 +6,8 @@ import com.mike.quadtrivia.models.Question;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
+
 public class SerializationTests {
     @Test
     void testDifficultySerialization() {
@@ -29,7 +31,9 @@ public class SerializationTests {
                 QuestionType.MULTIPLE,
                 Difficulty.EASY,
                 "Entertainment: Video Games",
-                "In the original Spyro game who is the first villain?");
+                "In the original Spyro game who is the first villain?",
+                List.of("Gnasty Gnorc", "Ripto", "Sorceress", "Cynder")
+                );
 
         String json = new ObjectMapper().writeValueAsString(question);
 
@@ -38,8 +42,12 @@ public class SerializationTests {
                         "\"type\":\"multiple\"," +
                         "\"difficulty\":\"easy\"," +
                         "\"category\":\"Entertainment: Video Games\"," +
-                        "\"question\":\"In the original Spyro game who is the first villain?\"" +
+                        "\"question\":\"In the original Spyro game who is the first villain?\"," +
+                        "\"answers\":[\"Gnasty Gnorc\",\"Ripto\",\"Sorceress\",\"Cynder\"]" +
                 "}";
+
+        System.out.println(json);
+        System.out.println(expectedResult);
 
         assert(json.equals(expectedResult));
     }
