@@ -57,8 +57,8 @@ export default function Home() {
   return (
     <div className="p-8 min-h-screen bg-slate-950">
       <div className="h-[70vh] w-full overflow-y-auto">
-        <table className="bg-blue-950 w-full min-h-full border-collapse-seperate">
-          <thead className="bg-blue-800 sticky top-0 z-10 border">
+        <table className="w-full min-h-full border-collapse-seperate">
+          <thead className="bg-teal-600 sticky top-0 z-10 border">
             <tr>
               <th className="border px-4 py-2 text-left text-l">Category</th>
               <th className="border px-4 py-2 text-left text-l">Difficulty</th>
@@ -75,7 +75,7 @@ export default function Home() {
                 </tr>
               ) : (
                 questions.map((question) => (
-                  <tr key={question.id} className="bg-blue-950">
+                  <tr key={question.id} className="bg-slate-900">
                     <td className="border px-4 py-2">{question.category}</td>
                     <td className="border px-4 py-2">{question.difficulty}</td>
                     <td className="border px-4 py-2">{question.question}</td>
@@ -87,7 +87,7 @@ export default function Home() {
                               type="radio"
                               name={question.id}
                               value={answer}
-                              className="accent-sky-400"
+                              className="accent-teal-600"
                             />
                             <span>{answer}</span>
                           </label>
@@ -102,7 +102,7 @@ export default function Home() {
       </div>
 
       <button 
-        className="px-6 py-4 bg-blue-700 rounded-full hover:bg-blue-600 hover:cursor-pointer mt-8"
+        className="px-6 py-4 bg-teal-600 rounded-full hover:bg-teal-500 hover:cursor-pointer mt-8"
         onClick={handleClick}
       >
         Generate New Questions
