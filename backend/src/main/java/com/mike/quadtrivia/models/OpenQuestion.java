@@ -1,13 +1,18 @@
 package com.mike.quadtrivia.models;
 
+import com.mike.quadtrivia.enums.Difficulty;
+import com.mike.quadtrivia.enums.QuestionType;
+
+import java.util.List;
+
 /*
     This record is responsible for defining the questions received from the OpenTrivia DB API.
  */
 public record OpenQuestion(
-        String type,
-        String difficulty,
+        QuestionType type,
+        Difficulty difficulty,
         String category,
         String question,
         String correct_answer,
-        String[] incorrect_answers
+        List<String> incorrect_answers
 ) {}

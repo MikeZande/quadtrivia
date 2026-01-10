@@ -60,7 +60,7 @@ public class OpenTriviaService {
                 response.response_code() == ResponseCode.TOKEN_NOT_FOUND))
             {
                 updateSessionToken();
-                Thread.sleep(5100);
+                Thread.sleep(5100); // Prevent rate limit.
                 return getQuestions(amount, category, difficulty, type);
             }
             return response;

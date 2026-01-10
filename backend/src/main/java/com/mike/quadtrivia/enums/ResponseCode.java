@@ -1,14 +1,10 @@
 package com.mike.quadtrivia.enums;
 
-import tools.jackson.databind.annotation.JsonDeserialize;
-
 public enum ResponseCode {
-    SUCCESS(0),
-    NO_RESULTS(1),
-    INVALID_PARAMETER(2),
-    TOKEN_NOT_FOUND(3),
-    TOKEN_EMPTY(4),
-    RATE_LIMIT_EXCEEDED(5);
-
-    ResponseCode(int code) {}
+    SUCCESS,
+    NO_RESULTS,
+    INVALID_PARAMETER,
+    TOKEN_NOT_FOUND,
+    TOKEN_EMPTY,
+    RATE_LIMIT_EXCEEDED
 }
