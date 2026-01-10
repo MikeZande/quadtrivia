@@ -4,7 +4,6 @@ import com.mike.quadtrivia.enums.ResponseCode;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 public record TokenResponse(
-        @JsonDeserialize
         ResponseCode response_code,
         String response_message,
         String token

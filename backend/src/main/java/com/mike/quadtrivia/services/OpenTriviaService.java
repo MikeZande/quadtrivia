@@ -1,6 +1,9 @@
 package com.mike.quadtrivia.services;
 
+import com.mike.quadtrivia.enums.ResponseCode;
+import com.mike.quadtrivia.models.GetQuestionResponse;
 import com.mike.quadtrivia.models.TokenResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -12,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 public class OpenTriviaService {
     private final String API_URI = "https://opentdb.com/";
     private final RestTemplate restTemplate;
-
     private String token;
 
     public OpenTriviaService(RestTemplate restTemplate) {
@@ -22,15 +24,20 @@ public class OpenTriviaService {
 
     private void updateSessionToken() {
         String uri = API_URI + "api_token.php?command=request";
-        TokenResponse tokenResponse = restTemplate.getForObject(uri, TokenResponse.class);
 
-        if (tokenResponse != null) { // TODO: Add some better verification, regarding response codes.
-            token = tokenResponse.token();
+        try {
+            TokenResponse tokenResponse = restTemplate.getForObject(uri, TokenResponse.class);
+            if (tokenResponse != null) {
+                token = tokenResponse.token();
+            }
+        } catch (Exception e) {
+            System.out.println("Unexpected error occurred. " + e.getMessage());
         }
     }
 
-    public String getQuestions(int amount, String category, String difficulty, String type) {
+    public GetQuestionResponse getQuestions(int amount, Integer category, String difficulty, String type) {
         String uri = API_URI + "api.php?token=" + token;
+        System.out.println(token);
 
         uri += "&amount=" + amount;
         if (category != null) {
@@ -43,11 +50,26 @@ public class OpenTriviaService {
             uri += "&type=" + type;
         }
 
-        String result = restTemplate.getForObject(uri, String.class);
-        //TODO: Verify result
+        try {
+            ResponseEntity<GetQuestionResponse> entity = restTemplate.getForEntity(uri, GetQuestionResponse.class);
+            GetQuestionResponse response = entity.getBody();
 
-        return result;
+            if (response != null &&
+                (response.response_code() == ResponseCode.TOKEN_EMPTY ||
+                response.response_code() == ResponseCode.TOKEN_NOT_FOUND))
+            {
+                updateSessionToken();
+                Thread.sleep(5100);
+                return getQuestions(amount, category, difficulty, type);
+            }
+            return response;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
-    public void getQuestions() { getQuestions(10, null, null, null);}
+    public GetQuestionResponse getQuestions() {
+        return getQuestions(10, null, null, null);
+    }
 }
