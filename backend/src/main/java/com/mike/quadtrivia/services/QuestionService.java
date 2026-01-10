@@ -8,6 +8,7 @@ import com.mike.quadtrivia.models.OpenQuestion;
 import com.mike.quadtrivia.models.Question;
 import com.mike.quadtrivia.models.QuestionResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,8 +58,13 @@ public class QuestionService {
         }
 
         for (OpenQuestion openQuestion : questions) {
-            List<String> answers = new ArrayList<>(openQuestion.incorrect_answers());
-            answers.add(openQuestion.correct_answer());
+            List<String> answers = new ArrayList<>();
+
+            for (String answer : openQuestion.incorrect_answers()) {
+                // Converts html formatting into human-readable string.
+                answers.add(HtmlUtils.htmlUnescape(answer));
+            }
+            answers.add(HtmlUtils.htmlUnescape(openQuestion.correct_answer()));
             Collections.shuffle(answers); // Shuffle the answers so that the order doesn't give away the right answer.
 
             // Store correct answer in the hashmap.
@@ -67,13 +73,13 @@ public class QuestionService {
             questionAnswerMap.put(questionId, openQuestion.correct_answer());
 
             Question question = new Question(
-                                        questionId,
-                                        openQuestion.type(),
-                                        openQuestion.difficulty(),
-                                        openQuestion.category(),
-                                        openQuestion.question(),
-                                        answers
-                                );
+                questionId,
+                openQuestion.type(),
+                openQuestion.difficulty(),
+                HtmlUtils.htmlUnescape(openQuestion.category()),
+                HtmlUtils.htmlUnescape(openQuestion.question()),
+                answers
+            );
 
             questionList.add(question);
         }
