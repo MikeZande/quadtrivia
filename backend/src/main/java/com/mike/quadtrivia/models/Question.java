@@ -9,6 +9,7 @@ import java.util.List;
     Defines the questions returned by this API.
  */
 public record Question(
+        String questionId,
         QuestionType type,
         Difficulty difficulty,
         String category,

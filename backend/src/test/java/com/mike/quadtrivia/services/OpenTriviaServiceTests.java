@@ -1,7 +1,9 @@
 package com.mike.quadtrivia.services;
 
+import com.mike.quadtrivia.enums.Difficulty;
+import com.mike.quadtrivia.enums.QuestionType;
 import com.mike.quadtrivia.enums.ResponseCode;
-import com.mike.quadtrivia.models.GetQuestionResponse;
+import com.mike.quadtrivia.models.OpenQuestionResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +20,7 @@ public class OpenTriviaServiceTests {
     @Test
     void testWithoutParameters() {
         sleep();
-        GetQuestionResponse result = triviaService.getQuestions();
+        OpenQuestionResponse result = triviaService.getQuestions();
         assert(result != null);
         assert(result.response_code() == ResponseCode.SUCCESS);
     }
@@ -26,7 +28,7 @@ public class OpenTriviaServiceTests {
     @Test
     void testWithParameters() {
         sleep();
-        GetQuestionResponse result = triviaService.getQuestions(1, 27, "easy", "boolean");
+        OpenQuestionResponse result = triviaService.getQuestions(1, 27, Difficulty.EASY, QuestionType.BOOLEAN);
         assert(result != null);
         assert(result.response_code() == ResponseCode.SUCCESS);
     }
@@ -34,21 +36,13 @@ public class OpenTriviaServiceTests {
     @Test
     void testRateLimit() {
         sleep();
-        GetQuestionResponse result = triviaService.getQuestions();
+        OpenQuestionResponse result = triviaService.getQuestions();
         assert(result != null);
         assert(result.response_code() == ResponseCode.SUCCESS);
 
         result = triviaService.getQuestions();
         assert(result != null);
         assert(result.response_code() == ResponseCode.RATE_LIMIT_EXCEEDED);
-    }
-
-    @Test
-    void testInvalidParameter() {
-        sleep();
-        GetQuestionResponse result = triviaService.getQuestions(5, 27, "easy", "invalid type");
-        assert(result != null);
-        assert(result.response_code() == ResponseCode.INVALID_PARAMETER);
     }
 
     /*
@@ -61,7 +55,7 @@ public class OpenTriviaServiceTests {
     void testTokenRefresh() {
         // Exhaust the token.
         sleep();
-        GetQuestionResponse result = triviaService.getQuestions(32, 30, null, null);
+        OpenQuestionResponse result = triviaService.getQuestions(32, 30, null, null);
         assert(result != null);
         assert(result.response_code() == ResponseCode.SUCCESS);
 

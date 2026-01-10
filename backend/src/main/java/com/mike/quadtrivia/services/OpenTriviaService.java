@@ -1,7 +1,9 @@
 package com.mike.quadtrivia.services;
 
+import com.mike.quadtrivia.enums.Difficulty;
+import com.mike.quadtrivia.enums.QuestionType;
 import com.mike.quadtrivia.enums.ResponseCode;
-import com.mike.quadtrivia.models.GetQuestionResponse;
+import com.mike.quadtrivia.models.OpenQuestionResponse;
 import com.mike.quadtrivia.models.TokenResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,7 @@ public class OpenTriviaService {
         }
     }
 
-    GetQuestionResponse getQuestions(int amount, Integer category, String difficulty, String type) {
+    OpenQuestionResponse getQuestions(int amount, Integer category, Difficulty difficulty, QuestionType type) {
         String uri = API_URI + "api.php?token=" + token;
 
         uri += "&amount=" + amount;
@@ -50,8 +52,8 @@ public class OpenTriviaService {
         }
 
         try {
-            ResponseEntity<GetQuestionResponse> entity = restTemplate.getForEntity(uri, GetQuestionResponse.class);
-            GetQuestionResponse response = entity.getBody();
+            ResponseEntity<OpenQuestionResponse> entity = restTemplate.getForEntity(uri, OpenQuestionResponse.class);
+            OpenQuestionResponse response = entity.getBody();
 
             // Refresh token when needed.
             if (response != null &&
@@ -65,14 +67,14 @@ public class OpenTriviaService {
             return response;
         } catch (HttpClientErrorException e) {
             // This should only happen when a rate limit happens.
-            return e.getResponseBodyAs(GetQuestionResponse.class);
+            return e.getResponseBodyAs(OpenQuestionResponse.class);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
         }
     }
 
-    GetQuestionResponse getQuestions() {
+    OpenQuestionResponse getQuestions() {
         return getQuestions(10, null, null, null);
     }
 }
