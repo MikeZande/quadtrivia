@@ -38,17 +38,21 @@ public class OpenTriviaService {
     }
 
     OpenQuestionResponse getQuestions(int amount, Integer category, Difficulty difficulty, QuestionType type) {
-        String uri = API_URI + "api.php?token=" + token;
+        String uri = API_URI + "api.php?amount=" + amount;
 
-        uri += "&amount=" + amount;
         if (category != null) {
             uri += "&category=" + category;
         }
         if (difficulty != null) {
-            uri += "&difficulty=" + difficulty;
+            uri += "&difficulty=" + difficulty.getDifficulty();
         }
         if (type != null) {
-            uri += "&type=" + type;
+            uri += "&type=" + type.getType();
+        }
+
+        // We only use a token when certain that the dataset is big enough to fetch 50 questions.
+        if (category == null && difficulty == null && type == null) {
+            uri += "&token=" + token;
         }
 
         try {
@@ -66,15 +70,10 @@ public class OpenTriviaService {
             }
             return response;
         } catch (HttpClientErrorException e) {
-            // This should only happen when a rate limit happens.
             return e.getResponseBodyAs(OpenQuestionResponse.class);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
         }
-    }
-
-    OpenQuestionResponse getQuestions() {
-        return getQuestions(10, null, null, null);
     }
 }

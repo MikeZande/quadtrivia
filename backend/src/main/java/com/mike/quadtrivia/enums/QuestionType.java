@@ -19,7 +19,7 @@ public enum QuestionType {
     }
 
     @JsonCreator
-    public QuestionType fromValue(String value) {
+    public static QuestionType fromValue(String value) {
         for (QuestionType qt : values()) {
             if (qt.type.equals(value)) {
                 return qt;

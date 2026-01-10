@@ -18,15 +18,7 @@ public class OpenTriviaServiceTests {
     private OpenTriviaService triviaService;
 
     @Test
-    void testWithoutParameters() {
-        sleep();
-        OpenQuestionResponse result = triviaService.getQuestions();
-        assert(result != null);
-        assert(result.response_code() == ResponseCode.SUCCESS);
-    }
-
-    @Test
-    void testWithParameters() {
+    void basicTest() {
         sleep();
         OpenQuestionResponse result = triviaService.getQuestions(1, 27, Difficulty.EASY, QuestionType.BOOLEAN);
         assert(result != null);
@@ -36,11 +28,11 @@ public class OpenTriviaServiceTests {
     @Test
     void testRateLimit() {
         sleep();
-        OpenQuestionResponse result = triviaService.getQuestions();
+        OpenQuestionResponse result = triviaService.getQuestions(5, null, null, null);
         assert(result != null);
         assert(result.response_code() == ResponseCode.SUCCESS);
 
-        result = triviaService.getQuestions();
+        result = triviaService.getQuestions(5, null, null, null);
         assert(result != null);
         assert(result.response_code() == ResponseCode.RATE_LIMIT_EXCEEDED);
     }

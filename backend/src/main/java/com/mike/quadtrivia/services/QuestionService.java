@@ -52,6 +52,10 @@ public class QuestionService {
     private List<Question> convertQuestions(List<OpenQuestion> questions) {
         List<Question> questionList = new ArrayList<>();
 
+        if (questions == null) {
+            return questionList;
+        }
+
         for (OpenQuestion openQuestion : questions) {
             List<String> answers = new ArrayList<>(openQuestion.incorrect_answers());
             answers.add(openQuestion.correct_answer());
