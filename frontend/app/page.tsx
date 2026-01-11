@@ -45,6 +45,8 @@ export default function Home() {
       );
       setQuestions(response.questions);
       setResponseCode(response.responseCode);
+      // Clear answers array:
+      setSelectedAnswers([]);
     } catch (error) {
       console.error(error);
     }

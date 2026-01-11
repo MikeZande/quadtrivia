@@ -48,6 +48,11 @@ public class QuestionService {
     public List<QuestionAnswerResult> checkAnswers(List<QuestionAnswer> submittedAnswers) {
         List<QuestionAnswerResult> results = new ArrayList<>();
 
+//        System.out.println("Submitted answers: ");
+//        System.out.println(submittedAnswers);
+//        System.out.println("Correct answers: ");
+//        System.out.println(correctAnswers);
+
         for (QuestionAnswer answer : submittedAnswers) {
             if (correctAnswers.contains(answer)) {
                 results.add(new QuestionAnswerResult(answer.questionId(), true));
@@ -73,17 +78,18 @@ public class QuestionService {
 
         for (OpenQuestion openQuestion : questions) {
             List<String> answers = new ArrayList<>();
+            String correctAnswer = HtmlUtils.htmlUnescape(openQuestion.correct_answer());
 
             for (String answer : openQuestion.incorrect_answers()) {
                 // Converts html formatting into human-readable string.
                 answers.add(HtmlUtils.htmlUnescape(answer));
             }
-            answers.add(HtmlUtils.htmlUnescape(openQuestion.correct_answer()));
+            answers.add(correctAnswer);
             Collections.shuffle(answers); // Shuffle the answers so that the order doesn't give away the right answer.
 
             // Store correct answer in the hashmap.
             String questionId = UUID.randomUUID().toString();
-            correctAnswers.add(new QuestionAnswer(questionId, openQuestion.correct_answer()));
+            correctAnswers.add(new QuestionAnswer(questionId, correctAnswer));
 
             Question question = new Question(
                 questionId,
