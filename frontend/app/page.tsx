@@ -4,10 +4,11 @@ import { Difficulty, QuestionType, ResponseCode, DIFFICULTIES, QUESTION_TYPES } 
 import { Question } from "./models/Question";
 import { QuestionResponse } from "./models/QuestionResponse";
 import { Category } from "./models/Category";
+import { getCategories, getQuestions } from "./api";
 
 export default function Home() {
-  const API_URL = "http://localhost:8080/";
-  const [questions, setQuestions] = useState<Question[]>([]);;
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [responseCode, setResponseCode] = useState<ResponseCode | null>(null);
 
   // Query params for getQuestions.
@@ -17,61 +18,31 @@ export default function Home() {
   const [questionType, setQuestionType] = useState<QuestionType | undefined>(undefined);
 
   // Fetch possible categories at page load.
-  const [categories, setCategories] = useState<Category[]>([]);
   useEffect(() => {
-    // fetch categories once on page load
     const fetchCategories = async () => {
       try {
-        const res = await fetch("https://opentdb.com/api_category.php");
-        const data = await res.json();
-        setCategories(data.trivia_categories);
-      } catch (err) {
-        throw new Error("Something went wrong");
+        const categories = await getCategories();
+        setCategories(categories);
+      } catch (e) {
+        console.error(e);
       }
     };
 
     fetchCategories();
   }, []);
 
-  async function getQuestionResponse() : Promise<QuestionResponse> {
-
-    const params = new URLSearchParams();
-    params.append("amount", questionAmount.toString());
-    if (category !== undefined) params.append("category", category.toString());
-    if (difficulty !== undefined) params.append("difficulty", difficulty);
-    if (questionType !== undefined) params.append("type", questionType);
-
-    const uri = API_URL + "questions?" + params;
-
+  const loadQuestions = async () => {
     try {
-      const response = await fetch(uri);
-      const result: QuestionResponse = await response.json();
-
-      // Rate limit exceeded.
-      if (response.status === 429) {
-        console.warn("Rate limit exceeded. Please wait 5 seconds before requesting.");
-        return result;
-      }
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      return result;
-    } catch (error) {
-      throw new Error("Something went wrong");
-    }
-  }
-
-  const handleClick = async () => {
-    try {
-      const response: QuestionResponse = await getQuestionResponse();
+      const response: QuestionResponse = await getQuestions(
+        questionAmount,
+        category,
+        difficulty,
+        questionType
+      );
       setQuestions(response.questions);
       setResponseCode(response.responseCode);
-      console.log(response);
-      console.log(questions);
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -80,6 +51,10 @@ export default function Home() {
     if (value < 1) value = 1;
     if (value > 50) value = 50;
     setQuestionAmount(value);
+  }
+
+  const submitAnswers = async () => {
+
   }
 
   return (
@@ -129,131 +104,142 @@ export default function Home() {
         </table>
       </div>
 
-      <div className="flex flex-col w-fit gap-2">
-        {/* Amount of questions */}
-        <div className="flex gap-4">
-          <span className="w-40">
-            Number of Questions:
-          </span>
 
-          <input
-            className="
-              bg-slate-900 
-              border-3 border-gray-300
-              rounded-md
-              w-60
-              hover:cursor-pointer"
-            type="number"
-            min={1}
-            max={50}
-            value={questionAmount}
-            onChange={(e) => handleNrInput(e)}
-          />
-        </div>
+      <div className="flex justify-between items-start">
+        <div className="flex flex-col w-fit gap-2">
+          {/* Amount of questions */}
+          <div className="flex gap-4">
+            <span className="w-40">
+              Number of Questions:
+            </span>
 
-        {/* Category */}
-        <div className="flex gap-4">
-          <span className="w-40">
-            Category:
-          </span>
+            <input
+              className="
+                bg-slate-900 
+                border-3 border-gray-300
+                rounded-md
+                w-60
+                hover:cursor-pointer"
+              type="number"
+              min={1}
+              max={50}
+              value={questionAmount}
+              onChange={(e) => handleNrInput(e)}
+            />
+          </div>
 
-          <select 
-            className="
-              bg-slate-900 
-              border-3 border-gray-300
-              rounded-md
-              w-60
-              hover:cursor-pointer"
-            onChange={(e) => 
-              setCategory(
-                e.target.value ? (Number(e.target.value)) : undefined
-              )
-            }
+          {/* Category */}
+          <div className="flex gap-4">
+            <span className="w-40">
+              Category:
+            </span>
+
+            <select 
+              className="
+                bg-slate-900 
+                border-3 border-gray-300
+                rounded-md
+                w-60
+                hover:cursor-pointer"
+              onChange={(e) => 
+                setCategory(
+                  e.target.value ? (Number(e.target.value)) : undefined
+                )
+              }
+            >
+              <option value={undefined}> All </option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Difficulty */}
+          <div className="flex gap-4">
+            <span className="w-40">
+              Difficulty:
+            </span>
+
+            <select 
+              className="
+                bg-slate-900 
+                border-3 border-gray-300
+                rounded-md
+                w-60
+                hover:cursor-pointer"
+              onChange={(e) => 
+                setDifficulty(
+                  e.target.value === "" ? undefined : (e.target.value as Difficulty)
+                )
+              }
+            >
+              <option value=""> All </option>
+              {DIFFICULTIES.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Question Type */}
+          <div className="flex gap-4">
+            <span className="w-40">
+              Question Type:
+            </span>
+
+            <select 
+              className="
+                bg-slate-900 
+                border-3 border-gray-300
+                rounded-md
+                w-60
+                hover:cursor-pointer"
+              onChange={(e) => 
+                setQuestionType(
+                  e.target.value === "" ? undefined : (e.target.value as QuestionType)
+                )
+              }
+            >
+              <option value=""> All </option>
+              {QUESTION_TYPES.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Generate questions button */}
+          <button 
+            className="px-6 py-4 bg-teal-600 rounded-full hover:bg-teal-500 hover:cursor-pointer mt-2"
+            onClick={loadQuestions}
           >
-            <option value={undefined}> All </option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+            Generate New Questions
+          </button>
+
+          {responseCode && (
+            <p 
+              className={`mt-3 text-m text-center text-wrap ${
+                responseCode === "SUCCESS" 
+                  ? "text-green-500"
+                  : "text-red-500"
+              }`}
+            >
+              {responseCode}
+            </p>
+          )}
         </div>
 
-        {/* Difficulty */}
-        <div className="flex gap-4">
-          <span className="w-40">
-            Difficulty:
-          </span>
-
-          <select 
-            className="
-              bg-slate-900 
-              border-3 border-gray-300
-              rounded-md
-              w-60
-              hover:cursor-pointer"
-            onChange={(e) => 
-              setDifficulty(
-                e.target.value === "" ? undefined : (e.target.value as Difficulty)
-              )
-            }
-          >
-            <option value=""> All </option>
-            {DIFFICULTIES.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Question Type */}
-        <div className="flex gap-4">
-          <span className="w-40">
-            Question Type:
-          </span>
-
-          <select 
-            className="
-              bg-slate-900 
-              border-3 border-gray-300
-              rounded-md
-              w-60
-              hover:cursor-pointer"
-            onChange={(e) => 
-              setQuestionType(
-                e.target.value === "" ? undefined : (e.target.value as QuestionType)
-              )
-            }
-          >
-            <option value=""> All </option>
-            {QUESTION_TYPES.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Generate questions button */}
+        {/* Check Answers button */}
         <button 
-          className="px-6 py-4 bg-teal-600 rounded-full hover:bg-teal-500 hover:cursor-pointer mt-2"
-          onClick={handleClick}
+          className="px-6 py-4 bg-teal-600 rounded-full hover:bg-teal-500 hover:cursor-pointer"
+          onClick={submitAnswers}
         >
-          Generate New Questions
+          Check Answers
         </button>
-
-        {responseCode && (
-          <p 
-            className={`mt-3 text-m text-center text-wrap ${
-              responseCode === "SUCCESS" 
-                ? "text-green-500"
-                : "text-red-500"
-            }`}
-          >
-            {responseCode}
-          </p>
-        )}
       </div>
     </div>
   );
