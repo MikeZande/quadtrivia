@@ -1,8 +1,9 @@
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Difficulty, QuestionType, ResponseCode, DIFFICULTIES, QUESTION_TYPES } from "./models/Types";
 import { Question } from "./models/Question";
-import { Difficulty, QuestionType, ResponseCode, Category, DIFFICULTIES, QUESTION_TYPES, CATEGORIES } from "./models/Types";
 import { QuestionResponse } from "./models/QuestionResponse";
+import { Category } from "./models/Category";
 
 export default function Home() {
   const API_URL = "http://localhost:8080/";
@@ -11,15 +12,32 @@ export default function Home() {
 
   // Query params for getQuestions.
   const [questionAmount, setQuestionAmount] = useState<number>(5);
-  const [category, setCategory] = useState<Category | undefined>(undefined);
+  const [category, setCategory] = useState<number | undefined>(undefined);
   const [difficulty, setDifficulty] = useState<Difficulty | undefined>(undefined);
   const [questionType, setQuestionType] = useState<QuestionType | undefined>(undefined);
+
+  // Fetch possible categories at page load.
+  const [categories, setCategories] = useState<Category[]>([]);
+  useEffect(() => {
+    // fetch categories once on page load
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("https://opentdb.com/api_category.php");
+        const data = await res.json();
+        setCategories(data.trivia_categories);
+      } catch (err) {
+        throw new Error("Something went wrong");
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   async function getQuestionResponse() : Promise<QuestionResponse> {
 
     const params = new URLSearchParams();
     params.append("amount", questionAmount.toString());
-    if (category !== undefined) params.append("category", category);
+    if (category !== undefined) params.append("category", category.toString());
     if (difficulty !== undefined) params.append("difficulty", difficulty);
     if (questionType !== undefined) params.append("type", questionType);
 
@@ -148,14 +166,14 @@ export default function Home() {
               hover:cursor-pointer"
             onChange={(e) => 
               setCategory(
-                e.target.value === "" ? undefined : (e.target.value as Category)
+                e.target.value ? (Number(e.target.value)) : undefined
               )
             }
           >
-            <option value=""> All </option>
-            {CATEGORIES.map((value) => (
-              <option key={value} value={value}>
-                {value}
+            <option value={undefined}> All </option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
               </option>
             ))}
           </select>
