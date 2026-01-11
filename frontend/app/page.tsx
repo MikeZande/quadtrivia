@@ -4,12 +4,16 @@ import { Difficulty, QuestionType, ResponseCode, DIFFICULTIES, QUESTION_TYPES } 
 import { Question } from "./models/Question";
 import { QuestionResponse } from "./models/QuestionResponse";
 import { Category } from "./models/Category";
-import { getCategories, getQuestions } from "./api";
+import { getCategories, getQuestions, submitAnswers } from "./api";
+import { Answer } from "./models/Answer";
+import { AnswerResponse } from "./models/AnswerResponse";
 
 export default function Home() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [responseCode, setResponseCode] = useState<ResponseCode | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<Answer[]>([]);
+  const [answersState, setAnswersState] = useState<AnswerResponse[]>([]);
 
   // Query params for getQuestions.
   const [questionAmount, setQuestionAmount] = useState<number>(5);
@@ -23,8 +27,8 @@ export default function Home() {
       try {
         const categories = await getCategories();
         setCategories(categories);
-      } catch (e) {
-        console.error(e);
+      } catch (error) {
+        console.error(error);
       }
     };
 
@@ -41,20 +45,32 @@ export default function Home() {
       );
       setQuestions(response.questions);
       setResponseCode(response.responseCode);
-    } catch (e) {
-      console.error(e);
+      initSelectedAnswers();
+    } catch (error) {
+      console.error(error);
     }
   };
+
+  function initSelectedAnswers() {
+    setSelectedAnswers(
+      questions.map(q => ({ questionId: q.id, answer: "" }))
+    );
+  }
+
+  const checkAnswers = async () => {
+    try {
+      const response: AnswerResponse[] = await submitAnswers(selectedAnswers);
+      setAnswersState(response);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   function handleNrInput(e: React.ChangeEvent<HTMLInputElement>) {
     let value = Number(e.target.value);
     if (value < 1) value = 1;
     if (value > 50) value = 50;
     setQuestionAmount(value);
-  }
-
-  const submitAnswers = async () => {
-
   }
 
   return (
@@ -77,8 +93,16 @@ export default function Home() {
                   </td>
                 </tr>
               ) : (
-                questions.map((question) => (
-                  <tr key={question.id} className="bg-slate-900">
+                questions.map((question) => {
+                  const answerState = answersState.find(a => a.questionId === question.id);
+
+                  let rowClass = "bg-slate-950";
+                  if (answerState) {
+                    rowClass = answerState.isCorrectAnswer ? "bg-green-950" : "bg-red-950";
+                  }
+                
+                return (
+                  <tr key={question.id} className={rowClass}>
                     <td className="border px-4 py-2">{question.category}</td>
                     <td className="border px-4 py-2">{question.difficulty}</td>
                     <td className="border px-4 py-2">{question.question}</td>
@@ -90,6 +114,16 @@ export default function Home() {
                               type="radio"
                               name={question.id}
                               value={answer}
+                              onChange={() => {
+                                setSelectedAnswers(prev => {
+                                  const otherAnswers = prev.filter(answer => answer.questionId !== question.id); // Remove old answer.
+                                  const newAnswer: Answer = { questionId: question.id, answer: answer }; // Add new answer.
+                                  return otherAnswers.concat(newAnswer);
+                                });
+
+                                // Remove the answer state of this question as it has been changed.
+                                setAnswersState(prev => prev.filter(a => a.questionId !== question.id));
+                              }}
                               className="accent-teal-600 hover:cursor-pointer"
                             />
                             <span>{answer}</span>
@@ -98,7 +132,7 @@ export default function Home() {
                       </div>
                     </td>
                   </tr>
-                ))
+                );})
               )}
           </tbody>
         </table>
@@ -147,7 +181,7 @@ export default function Home() {
                 )
               }
             >
-              <option value={undefined}> All </option>
+              <option value=""> All </option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -236,7 +270,7 @@ export default function Home() {
         {/* Check Answers button */}
         <button 
           className="px-6 py-4 bg-teal-600 rounded-full hover:bg-teal-500 hover:cursor-pointer"
-          onClick={submitAnswers}
+          onClick={checkAnswers}
         >
           Check Answers
         </button>

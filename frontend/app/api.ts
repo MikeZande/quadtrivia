@@ -1,3 +1,5 @@
+import { Answer } from "./models/Answer";
+import { AnswerResponse } from "./models/AnswerResponse";
 import { Category } from "./models/Category";
 import { QuestionResponse } from "./models/QuestionResponse";
 import { Difficulty, QuestionType } from "./models/Types";
@@ -36,6 +38,7 @@ export async function getQuestions(
 
         return result;
     } catch (error) {
+        console.error("Something went wrong: ", error);
         throw new Error("Failed to fetch questions");
     }
 }
@@ -43,11 +46,35 @@ export async function getQuestions(
 // Fetch categories
 export async function getCategories(): Promise<Category[]> {
     try {
-        const res = await fetch("https://opentdb.com/api_category.php");
-        const categories = await res.json();
-        return categories.trivia_questions;
-    } catch (err) {
+        const response = await fetch("https://opentdb.com/api_category.php");
+        const categories = await response.json();
+        return categories.trivia_categories;
+    } catch (error) {
+        console.error("Something went wrong: ", error);
         throw new Error("Failed to fetch categories");
     }
 }
 
+// Asks the API to check the answers.
+export async function submitAnswers(answers: Answer[]): Promise<AnswerResponse[]> {
+    const uri = API_URL + "checkanswers"
+    const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(answers)
+    };
+
+    try {
+        const response = await fetch(uri, requestOptions);
+        const result: AnswerResponse[] = await response.json();
+
+        if (!response.ok) {
+            throw new Error("Response status: " + response.status);
+        }
+
+        return result;
+    } catch (error) {
+        console.error("Something went wrong: ", error);
+        throw new Error("Failed to check answers");
+    }
+}
