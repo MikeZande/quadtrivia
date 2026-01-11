@@ -45,17 +45,10 @@ export default function Home() {
       );
       setQuestions(response.questions);
       setResponseCode(response.responseCode);
-      initSelectedAnswers();
     } catch (error) {
       console.error(error);
     }
   };
-
-  function initSelectedAnswers() {
-    setSelectedAnswers(
-      questions.map(q => ({ questionId: q.id, answer: "" }))
-    );
-  }
 
   const checkAnswers = async () => {
     try {
