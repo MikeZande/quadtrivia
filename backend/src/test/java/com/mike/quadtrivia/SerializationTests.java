@@ -28,6 +28,7 @@ public class SerializationTests {
     @Test
     void testQuestionSerialization() {
         Question question = new Question(
+                "1",
                 QuestionType.MULTIPLE,
                 Difficulty.EASY,
                 "Entertainment: Video Games",

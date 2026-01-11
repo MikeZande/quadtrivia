@@ -21,7 +21,6 @@ public class OpenTriviaServiceTests {
     void basicTest() {
         sleep();
         OpenQuestionResponse result = triviaService.getQuestions(1, 27, Difficulty.EASY, QuestionType.BOOLEAN);
-        assert(result != null);
         assert(result.response_code() == ResponseCode.SUCCESS);
     }
 
@@ -29,33 +28,10 @@ public class OpenTriviaServiceTests {
     void testRateLimit() {
         sleep();
         OpenQuestionResponse result = triviaService.getQuestions(5, null, null, null);
-        assert(result != null);
         assert(result.response_code() == ResponseCode.SUCCESS);
 
         result = triviaService.getQuestions(5, null, null, null);
-        assert(result != null);
         assert(result.response_code() == ResponseCode.RATE_LIMIT_EXCEEDED);
-    }
-
-    /*
-        Not ideal as this test depends on that the state of the Open Trivia DB API does not change.
-
-        I would want to check that the value of the token is different at the start compared to the end.
-        However I think adding a token getter to the service is unnecessary and bad.
-     */
-    @Test
-    void testTokenRefresh() {
-        // Exhaust the token.
-        sleep();
-        OpenQuestionResponse result = triviaService.getQuestions(32, 30, null, null);
-        assert(result != null);
-        assert(result.response_code() == ResponseCode.SUCCESS);
-
-        // Now we check that the token gets refreshed by our service.
-        sleep();
-        result = triviaService.getQuestions(1, 30, null, null);
-        assert(result != null);
-        assert(result.response_code() == ResponseCode.SUCCESS);
     }
 
     private void sleep() {

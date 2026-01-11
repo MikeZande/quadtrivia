@@ -16,11 +16,9 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class OpenTriviaService {
     private final String API_URI = "https://opentdb.com/";
-    private final RestTemplate restTemplate;
     private String token;
 
-    public OpenTriviaService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public OpenTriviaService() {
         updateSessionToken();
     }
 
@@ -28,7 +26,7 @@ public class OpenTriviaService {
         String uri = API_URI + "api_token.php?command=request";
 
         try {
-            TokenResponse tokenResponse = restTemplate.getForObject(uri, TokenResponse.class);
+            TokenResponse tokenResponse = new RestTemplate().getForObject(uri, TokenResponse.class);
             if (tokenResponse != null) {
                 token = tokenResponse.token();
             }
@@ -56,7 +54,7 @@ public class OpenTriviaService {
         }
 
         try {
-            ResponseEntity<OpenQuestionResponse> entity = restTemplate.getForEntity(uri, OpenQuestionResponse.class);
+            ResponseEntity<OpenQuestionResponse> entity = new RestTemplate().getForEntity(uri, OpenQuestionResponse.class);
             OpenQuestionResponse response = entity.getBody();
 
             // Refresh token when needed.
@@ -68,11 +66,12 @@ public class OpenTriviaService {
                 Thread.sleep(5100); // Prevent rate limit.
                 return getQuestions(amount, category, difficulty, type);
             }
+
             return response;
         } catch (HttpClientErrorException e) {
             return e.getResponseBodyAs(OpenQuestionResponse.class);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Unexpected error occurred. " + e.getMessage());
             return null;
         }
     }

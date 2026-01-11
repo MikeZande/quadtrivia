@@ -32,10 +32,6 @@ public class QuestionService {
 
         OpenQuestionResponse response = openTriviaService.getQuestions(amount, category, difficulty, type);
 
-        if (response == null) {
-            return null;
-        }
-
         responseCode = response.response_code();
         openQuestions = response.results();
 
