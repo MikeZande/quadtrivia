@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react";
-import { Difficulty, QuestionType, ResponseCode, DIFFICULTIES, QUESTION_TYPES } from "./models/Types";
+import { Difficulty, QuestionType, ResponseCode, DIFFICULTIES, QUESTION_TYPES, DIFFICULTY_LABELS, QUESTION_TYPE_LABELS } from "./models/Types";
 import { Question } from "./models/Question";
 import { QuestionResponse } from "./models/QuestionResponse";
 import { Category } from "./models/Category";
@@ -61,8 +61,7 @@ export default function Home() {
     }
   }
 
-  function handleNrInput(e: React.ChangeEvent<HTMLInputElement>) {
-    let value = Number(e.target.value);
+  function handleNrInput(value: number) {
     if (value < 1) value = 1;
     if (value > 50) value = 50;
     setQuestionAmount(value);
@@ -99,7 +98,7 @@ export default function Home() {
                 return (
                   <tr key={question.id} className={rowClass}>
                     <td className="border px-4 py-2">{question.category}</td>
-                    <td className="border px-4 py-2">{question.difficulty}</td>
+                    <td className="border px-4 py-2">{DIFFICULTY_LABELS[question.difficulty]}</td>
                     <td className="border px-4 py-2">{question.question}</td>
                     <td className="border px-4 py-2">
                       <div className="flex flex-col space-y-1">
@@ -153,7 +152,8 @@ export default function Home() {
               min={1}
               max={50}
               value={questionAmount}
-              onChange={(e) => handleNrInput(e)}
+              onChange={(e) => setQuestionAmount(Number(e.target.value))}
+              onBlur={() => handleNrInput(questionAmount)}
             />
           </div>
 
@@ -207,7 +207,7 @@ export default function Home() {
               <option value=""> All </option>
               {DIFFICULTIES.map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {DIFFICULTY_LABELS[value]}
                 </option>
               ))}
             </select>
@@ -235,7 +235,7 @@ export default function Home() {
               <option value=""> All </option>
               {QUESTION_TYPES.map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {QUESTION_TYPE_LABELS[value]}
                 </option>
               ))}
             </select>
