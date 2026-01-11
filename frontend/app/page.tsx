@@ -1,12 +1,16 @@
 "use client"
 import { useState, useEffect } from "react";
-import { Difficulty, QuestionType, ResponseCode, DIFFICULTIES, QUESTION_TYPES, DIFFICULTY_LABELS, QUESTION_TYPE_LABELS } from "./models/Types";
+import { Difficulty, QuestionType, ResponseCode } from "./models/Types";
 import { Question } from "./models/Question";
 import { QuestionResponse } from "./models/QuestionResponse";
 import { Category } from "./models/Category";
-import { getCategories, getQuestions, submitAnswers } from "./api";
+import { getCategories, getQuestions, submitAnswers } from "./services/api";
 import { Answer } from "./models/Answer";
 import { AnswerResponse } from "./models/AnswerResponse";
+import { QuestionTable } from "./components/QuestionTable";
+import { CategorySelection } from "./components/CategorySelection";
+import { QuestionTypeSelection } from "./components/QuestionTypeSelection";
+import { DifficultySelection } from "./components/DifficultySelection";
 
 export default function Home() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -70,68 +74,14 @@ export default function Home() {
   return (
     <div className="p-8 min-h-screen bg-slate-950">
       <div className="h-[65vh] w-full overflow-y-auto mb-8">
-        <table className="w-full min-h-full border-collapse-seperate">
-          <thead className="bg-teal-600 sticky top-0 z-10 border">
-            <tr>
-              <th className="border px-4 py-2 text-left text-l">Category</th>
-              <th className="border px-4 py-2 text-left text-l">Difficulty</th>
-              <th className="border px-4 py-2 text-left text-l">Question</th>
-              <th className="border px-4 py-2 text-left text-l">Answers</th>
-            </tr>
-          </thead>
-          <tbody>
-            {questions.length === 0 ? (
-                <tr key={1}>
-                  <td colSpan={4} className="border text-center text-gray-100 text-2xl">
-                    No data available
-                  </td>
-                </tr>
-              ) : (
-                questions.map((question) => {
-                  const answerState = answersState.find(a => a.questionId === question.id);
-
-                  let rowClass = "bg-slate-950";
-                  if (answerState) {
-                    rowClass = answerState.isCorrectAnswer ? "bg-green-950" : "bg-red-950";
-                  }
-                
-                return (
-                  <tr key={question.id} className={rowClass}>
-                    <td className="border px-4 py-2">{question.category}</td>
-                    <td className="border px-4 py-2">{DIFFICULTY_LABELS[question.difficulty]}</td>
-                    <td className="border px-4 py-2">{question.question}</td>
-                    <td className="border px-4 py-2">
-                      <div className="flex flex-col space-y-1">
-                        {question.answers.map((answer, idx) => (
-                          <label key={idx} className="flex items-center space-x-4 hover:cursor-pointer">
-                            <input
-                              type="radio"
-                              name={question.id}
-                              value={answer}
-                              onChange={() => {
-                                setSelectedAnswers(prev => {
-                                  const otherAnswers = prev.filter(answer => answer.questionId !== question.id); // Remove old answer.
-                                  const newAnswer: Answer = { questionId: question.id, answer: answer }; // Add new answer.
-                                  return otherAnswers.concat(newAnswer);
-                                });
-
-                                // Remove the answer state of this question as it has been changed.
-                                setAnswersState(prev => prev.filter(a => a.questionId !== question.id));
-                              }}
-                              className="accent-teal-600 hover:cursor-pointer"
-                            />
-                            <span>{answer}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                );})
-              )}
-          </tbody>
-        </table>
+        <QuestionTable 
+          questions={questions}
+          answersState={answersState}
+          selectedAnswers={selectedAnswers}
+          setSelectedAnswers={setSelectedAnswers}
+          setAnswersState={setAnswersState}
+        />
       </div>
-
 
       <div className="flex justify-between items-start">
         <div className="flex flex-col w-fit gap-2">
@@ -158,88 +108,21 @@ export default function Home() {
           </div>
 
           {/* Category */}
-          <div className="flex gap-4">
-            <span className="w-40">
-              Category:
-            </span>
-
-            <select 
-              className="
-                bg-slate-900 
-                border-3 border-gray-300
-                rounded-md
-                w-60
-                hover:cursor-pointer"
-              onChange={(e) => 
-                setCategory(
-                  e.target.value ? (Number(e.target.value)) : undefined
-                )
-              }
-            >
-              <option value=""> All </option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <CategorySelection
+            categories={categories}
+            value={category}
+            onChange={setCategory}
+          />
 
           {/* Difficulty */}
-          <div className="flex gap-4">
-            <span className="w-40">
-              Difficulty:
-            </span>
-
-            <select 
-              className="
-                bg-slate-900 
-                border-3 border-gray-300
-                rounded-md
-                w-60
-                hover:cursor-pointer"
-              onChange={(e) => 
-                setDifficulty(
-                  e.target.value === "" ? undefined : (e.target.value as Difficulty)
-                )
-              }
-            >
-              <option value=""> All </option>
-              {DIFFICULTIES.map((value) => (
-                <option key={value} value={value}>
-                  {DIFFICULTY_LABELS[value]}
-                </option>
-              ))}
-            </select>
-          </div>
+          <DifficultySelection
+            onChange={setDifficulty}
+          />
 
           {/* Question Type */}
-          <div className="flex gap-4">
-            <span className="w-40">
-              Question Type:
-            </span>
-
-            <select 
-              className="
-                bg-slate-900 
-                border-3 border-gray-300
-                rounded-md
-                w-60
-                hover:cursor-pointer"
-              onChange={(e) => 
-                setQuestionType(
-                  e.target.value === "" ? undefined : (e.target.value as QuestionType)
-                )
-              }
-            >
-              <option value=""> All </option>
-              {QUESTION_TYPES.map((value) => (
-                <option key={value} value={value}>
-                  {QUESTION_TYPE_LABELS[value]}
-                </option>
-              ))}
-            </select>
-          </div>
+          <QuestionTypeSelection
+            onChange={setQuestionType}
+          />
 
           {/* Generate questions button */}
           <button 

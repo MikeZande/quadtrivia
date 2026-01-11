@@ -1,8 +1,9 @@
-import { Answer } from "./models/Answer";
-import { AnswerResponse } from "./models/AnswerResponse";
-import { Category } from "./models/Category";
-import { QuestionResponse } from "./models/QuestionResponse";
-import { Difficulty, QuestionType } from "./models/Types";
+import { Answer } from "../models/Answer";
+import { AnswerResponse } from "../models/AnswerResponse";
+import { Category } from "../models/Category";
+import { QuestionResponse } from "../models/QuestionResponse";
+import { Difficulty, QuestionType } from "../models/Types";
+
 
 const API_URL = "http://localhost:8080/";
 
