@@ -24,14 +24,11 @@ public class QuestionController {
 
     @GetMapping("/questions")
     public ResponseEntity<QuestionResponse> getQuestions(
-            @RequestParam(required = false) Integer amount,
+            @RequestParam(defaultValue = "5") Integer amount,
             @RequestParam(required = false) Integer category,
             @RequestParam(required = false) String difficulty,
             @RequestParam(required = false) String type
     ) {
-        if (amount == null) {
-            amount = 5;
-        }
 
         Difficulty difficultyEnum = Difficulty.fromValue(difficulty);
         QuestionType questionTypeEnum = QuestionType.fromValue(type);
@@ -50,9 +47,7 @@ public class QuestionController {
                     .body(body);
         }
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(body);
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping("/checkanswers")
@@ -60,8 +55,6 @@ public class QuestionController {
 
         List<QuestionAnswerResult> body = questionService.checkAnswers(answers);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(body);
+        return ResponseEntity.ok(body);
     }
 }

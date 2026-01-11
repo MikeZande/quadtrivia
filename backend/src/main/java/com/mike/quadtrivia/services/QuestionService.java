@@ -48,11 +48,6 @@ public class QuestionService {
     public List<QuestionAnswerResult> checkAnswers(List<QuestionAnswer> submittedAnswers) {
         List<QuestionAnswerResult> results = new ArrayList<>();
 
-//        System.out.println("Submitted answers: ");
-//        System.out.println(submittedAnswers);
-//        System.out.println("Correct answers: ");
-//        System.out.println(correctAnswers);
-
         for (QuestionAnswer answer : submittedAnswers) {
             if (correctAnswers.contains(answer)) {
                 results.add(new QuestionAnswerResult(answer.questionId(), true));
