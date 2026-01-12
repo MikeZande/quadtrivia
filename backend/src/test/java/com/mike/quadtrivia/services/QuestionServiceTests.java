@@ -17,6 +17,8 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class QuestionServiceTests {
+    private final String userId = "fake_id";
+
     @Autowired
     private QuestionService questionService;
 
@@ -38,7 +40,7 @@ public class QuestionServiceTests {
         when(openTriviaService.getQuestions(1, null, Difficulty.EASY, QuestionType.BOOLEAN, 1))
                 .thenReturn(mockResponse);
 
-        QuestionResponse result = questionService.getQuestions(1, null, Difficulty.EASY, QuestionType.BOOLEAN);
+        QuestionResponse result = questionService.getQuestions(1, null, Difficulty.EASY, QuestionType.BOOLEAN, userId);
         Question resultingQuestion = result.questions().get(0);
 
         assertEquals(ResponseCode.SUCCESS, result.responseCode());
@@ -65,14 +67,14 @@ public class QuestionServiceTests {
 
         // Stores the correct answer inside questionService
         String questionId = questionService
-                .getQuestions(1, null, Difficulty.EASY, QuestionType.MULTIPLE)
+                .getQuestions(1, null, Difficulty.EASY, QuestionType.MULTIPLE, userId)
                 .questions().get(0)
                 .id();
 
         QuestionAnswerResult correctResult = questionService
-                .checkAnswers(List.of(new QuestionAnswer(questionId, "True"))).get(0);
+                .checkAnswers(List.of(new QuestionAnswer(questionId, "True")), userId).get(0);
         QuestionAnswerResult wrongResult = questionService
-                .checkAnswers(List.of(new QuestionAnswer(questionId, "False"))).get(0);
+                .checkAnswers(List.of(new QuestionAnswer(questionId, "False")), userId).get(0);
 
         assertEquals(correctResult, new QuestionAnswerResult(questionId, true));
         assertEquals(wrongResult, new QuestionAnswerResult(questionId, false));

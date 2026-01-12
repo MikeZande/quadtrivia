@@ -2,48 +2,38 @@ package com.mike.quadtrivia.services;
 
 import com.mike.quadtrivia.enums.Difficulty;
 import com.mike.quadtrivia.enums.QuestionType;
-import com.mike.quadtrivia.enums.ResponseCode;
 import com.mike.quadtrivia.models.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /*
     Internal access point for extracting questions and getting answers.
  */
 @Service
 public class QuestionService {
-    // Stores the correct answers of the most recently requested questions.
-    private final List<QuestionAnswer> correctAnswers = new ArrayList<>();
+    // Stores the correct answers of the most recently requested questions for each user.
+    private final Map<String, List<QuestionAnswer>> userToCorrectAnswersMap = new ConcurrentHashMap<>();
     private final OpenTriviaService openTriviaService;
 
     public QuestionService(OpenTriviaService openTriviaService) {
         this.openTriviaService = openTriviaService;
     }
 
-    public QuestionResponse getQuestions(int amount, Integer category, Difficulty difficulty, QuestionType type) {
-        QuestionResponse questionResponse;
-        ResponseCode responseCode;
-        List<Question> questions;
-        List<OpenQuestion> openQuestions;
+    public QuestionResponse getQuestions(int amount, Integer category, Difficulty difficulty, QuestionType type, String userId) {
 
         OpenQuestionResponse response = openTriviaService.getQuestions(amount, category, difficulty, type, 1);
 
-        responseCode = response.response_code();
-        openQuestions = response.results();
+        List<Question> questions = convertQuestions(response.results(), userId);
 
-        questions = convertQuestions(openQuestions);
-        questionResponse = new QuestionResponse(responseCode, questions);
-
-        return questionResponse;
+        return new QuestionResponse(response.response_code(), questions);
     }
 
-    public List<QuestionAnswerResult> checkAnswers(List<QuestionAnswer> submittedAnswers) {
+    public List<QuestionAnswerResult> checkAnswers(List<QuestionAnswer> submittedAnswers, String userId) {
         List<QuestionAnswerResult> results = new ArrayList<>();
+        List<QuestionAnswer> correctAnswers = getCorrectAnswers(userId);
 
         for (QuestionAnswer answer : submittedAnswers) {
             if (correctAnswers.contains(answer)) {
@@ -60,8 +50,9 @@ public class QuestionService {
     *   Converts OpenQuestions into Questions,
     *   Also stores the correct answers and id, into correctAnswers.
     */
-    private List<Question> convertQuestions(List<OpenQuestion> questions) {
+    private List<Question> convertQuestions(List<OpenQuestion> questions, String userId) {
         List<Question> questionList = new ArrayList<>();
+        List<QuestionAnswer> correctAnswers = getCorrectAnswers(userId);
         correctAnswers.clear(); // User only interacts with the last received questions.
 
         if (questions == null) {
@@ -96,5 +87,9 @@ public class QuestionService {
         }
 
         return questionList;
+    }
+
+    private List<QuestionAnswer> getCorrectAnswers(String userId) {
+        return userToCorrectAnswersMap.computeIfAbsent(userId, key -> new ArrayList<>());
     }
 }

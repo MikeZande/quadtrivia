@@ -4,8 +4,8 @@ import { Category } from "../models/Category";
 import { QuestionResponse } from "../models/QuestionResponse";
 import { Difficulty, QuestionType } from "../models/Types";
 
-
 const API_URL = "http://localhost:8080/";
+const includeCredentials: RequestCredentials = "include";
 
 // Fetch questions
 export async function getQuestions(
@@ -23,7 +23,7 @@ export async function getQuestions(
 
     const uri = API_URL + "questions?" + params;
 
-    const response = await fetch(uri);
+    const response = await fetch(uri, {credentials: includeCredentials});
     const result: QuestionResponse = await response.json();
 
     // Rate limit exceeded.
@@ -56,7 +56,8 @@ export async function submitAnswers(answers: Answer[]): Promise<AnswerResponse[]
     const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(answers)
+        body: JSON.stringify(answers),
+        credentials: includeCredentials,
     };
 
     const response = await fetch(uri, requestOptions);
