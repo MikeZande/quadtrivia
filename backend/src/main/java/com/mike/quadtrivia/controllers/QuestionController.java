@@ -37,6 +37,7 @@ public class QuestionController {
     ) {
         String userId = getUserId(request, response);
 
+        // @RequestParam variables don't automatically get deserialized so we do it manually.
         Difficulty difficultyEnum = Difficulty.fromValue(difficulty);
         QuestionType questionTypeEnum = QuestionType.fromValue(type);
 
