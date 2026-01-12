@@ -17,6 +17,7 @@ import java.util.UUID;
  */
 @Service
 public class QuestionService {
+    // Stores the correct answers of the most recently requested questions.
     private final List<QuestionAnswer> correctAnswers = new ArrayList<>();
     private final OpenTriviaService openTriviaService;
 
@@ -57,11 +58,11 @@ public class QuestionService {
 
     /*
     *   Converts OpenQuestions into Questions,
-    *   Also stores a link between the correct answer and a question id into questionAnswerMap.
+    *   Also stores the correct answers and id, into correctAnswers.
     */
     private List<Question> convertQuestions(List<OpenQuestion> questions) {
         List<Question> questionList = new ArrayList<>();
-        correctAnswers.clear(); // User only interacts with the lastly received questions.
+        correctAnswers.clear(); // User only interacts with the last received questions.
 
         if (questions == null) {
             return questionList;
@@ -69,10 +70,10 @@ public class QuestionService {
 
         for (OpenQuestion openQuestion : questions) {
             List<String> answers = new ArrayList<>();
+            // Converts html formatting from OpenTriviaDB into human-readable string.
             String correctAnswer = HtmlUtils.htmlUnescape(openQuestion.correct_answer());
 
             for (String answer : openQuestion.incorrect_answers()) {
-                // Converts html formatting into human-readable string.
                 answers.add(HtmlUtils.htmlUnescape(answer));
             }
             answers.add(correctAnswer);

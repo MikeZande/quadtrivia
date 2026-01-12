@@ -65,6 +65,7 @@ public class OpenTriviaService {
 
             return response;
         } catch (HttpClientErrorException e) {
+            // OpenTriviaDB sends a proper body even when failing.
             return e.getResponseBodyAs(OpenQuestionResponse.class);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
