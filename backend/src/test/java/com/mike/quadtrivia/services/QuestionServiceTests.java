@@ -35,7 +35,7 @@ public class QuestionServiceTests {
                 List.of("False")
         );
         OpenQuestionResponse mockResponse = new OpenQuestionResponse(ResponseCode.SUCCESS, List.of(question));
-        when(openTriviaService.getQuestions(1, null, Difficulty.EASY, QuestionType.BOOLEAN))
+        when(openTriviaService.getQuestions(1, null, Difficulty.EASY, QuestionType.BOOLEAN, 1))
                 .thenReturn(mockResponse);
 
         QuestionResponse result = questionService.getQuestions(1, null, Difficulty.EASY, QuestionType.BOOLEAN);
@@ -60,7 +60,7 @@ public class QuestionServiceTests {
                 List.of("False")
         );
         OpenQuestionResponse mockResponse = new OpenQuestionResponse(ResponseCode.SUCCESS, List.of(question));
-        when(openTriviaService.getQuestions(1, null, Difficulty.EASY, QuestionType.MULTIPLE))
+        when(openTriviaService.getQuestions(1, null, Difficulty.EASY, QuestionType.MULTIPLE, 1))
                 .thenReturn(mockResponse);
 
         // Stores the correct answer inside questionService

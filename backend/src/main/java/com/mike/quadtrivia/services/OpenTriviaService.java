@@ -25,18 +25,19 @@ public class OpenTriviaService {
     private void updateSessionToken() {
         String uri = API_URI + "api_token.php?command=request";
 
-        try {
-            TokenResponse tokenResponse = new RestTemplate().getForObject(uri, TokenResponse.class);
-            if (tokenResponse != null) {
-                token = tokenResponse.token();
-            }
-        } catch (Exception e) {
-            System.out.println("Unexpected error occurred. " + e.getMessage());
+        TokenResponse tokenResponse = new RestTemplate().getForObject(uri, TokenResponse.class);
+
+        if (tokenResponse != null) {
+            token = tokenResponse.token();
         }
     }
 
-    OpenQuestionResponse getQuestions(int amount, Integer category, Difficulty difficulty, QuestionType type) {
-        String uri = API_URI + "api.php?amount=" + amount;
+    /*
+        Retries makes sure the function does not infinitely loop.
+        (The open trivia db can return responseCode.TOKEN_EMPTY even when this is not the case)
+     */
+    OpenQuestionResponse getQuestions(int amount, Integer category, Difficulty difficulty, QuestionType type, int retries) {
+        String uri = API_URI + "api.php?amount=" + amount + "&token=" + token;
 
         if (category != null) {
             uri += "&category=" + category;
@@ -48,31 +49,26 @@ public class OpenTriviaService {
             uri += "&type=" + type.getType();
         }
 
-        // We only use a token when certain that the dataset is big enough to fetch 50 questions.
-        if (category == null && difficulty == null && type == null) {
-            uri += "&token=" + token;
-        }
-
         try {
             ResponseEntity<OpenQuestionResponse> entity = new RestTemplate().getForEntity(uri, OpenQuestionResponse.class);
             OpenQuestionResponse response = entity.getBody();
 
             // Refresh token when needed.
-            if (response != null &&
+            if (response != null && retries > 0 &&
                 (response.response_code() == ResponseCode.TOKEN_EMPTY ||
                 response.response_code() == ResponseCode.TOKEN_NOT_FOUND))
             {
                 updateSessionToken();
                 Thread.sleep(5100); // Prevent rate limit.
-                return getQuestions(amount, category, difficulty, type);
+                return getQuestions(amount, category, difficulty, type, retries - 1);
             }
 
             return response;
         } catch (HttpClientErrorException e) {
             return e.getResponseBodyAs(OpenQuestionResponse.class);
-        } catch (Exception e) {
-            System.out.println("Unexpected error occurred. " + e.getMessage());
-            return null;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while waiting for API rate limit", e);
         }
     }
 }

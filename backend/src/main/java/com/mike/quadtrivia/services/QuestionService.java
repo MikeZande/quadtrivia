@@ -30,7 +30,7 @@ public class QuestionService {
         List<Question> questions;
         List<OpenQuestion> openQuestions;
 
-        OpenQuestionResponse response = openTriviaService.getQuestions(amount, category, difficulty, type);
+        OpenQuestionResponse response = openTriviaService.getQuestions(amount, category, difficulty, type, 1);
 
         responseCode = response.response_code();
         openQuestions = response.results();

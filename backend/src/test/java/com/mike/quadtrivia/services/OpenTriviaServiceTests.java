@@ -20,18 +20,33 @@ public class OpenTriviaServiceTests {
     @Test
     void basicTest() {
         sleep();
-        OpenQuestionResponse result = triviaService.getQuestions(1, 27, Difficulty.EASY, QuestionType.BOOLEAN);
+        OpenQuestionResponse result = triviaService.getQuestions(1, 27, Difficulty.EASY, QuestionType.BOOLEAN, 1);
         assert(result.response_code() == ResponseCode.SUCCESS);
     }
 
     @Test
     void testRateLimit() {
         sleep();
-        OpenQuestionResponse result = triviaService.getQuestions(5, null, null, null);
+        OpenQuestionResponse result = triviaService.getQuestions(5, null, null, null, 1);
         assert(result.response_code() == ResponseCode.SUCCESS);
 
-        result = triviaService.getQuestions(5, null, null, null);
+        result = triviaService.getQuestions(5, null, null, null, 1);
         assert(result.response_code() == ResponseCode.RATE_LIMIT_EXCEEDED);
+    }
+
+    @Test
+    void testTokenRefresh() {
+        // Exhaust the token. (by checking using an external tool it is known that category 30 has 32 questions)
+        sleep();
+        OpenQuestionResponse result = triviaService.getQuestions(32, 30, null, null, 1);
+        assert(result != null);
+        assert(result.response_code() == ResponseCode.SUCCESS);
+
+        // Now we check that the token gets refreshed by our service.
+        sleep();
+        result = triviaService.getQuestions(1, 30, null, null, 1);
+        assert(result != null);
+        assert(result.response_code() == ResponseCode.SUCCESS);
     }
 
     private void sleep() {
