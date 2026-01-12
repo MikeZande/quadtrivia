@@ -85,7 +85,7 @@ public class QuestionController {
         String uuid = UUID.randomUUID().toString();
         Cookie cookie = new Cookie("userId", uuid);
         cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 24); // 1 day
+        cookie.setMaxAge(Integer.MAX_VALUE); // 1 day
         response.addCookie(cookie);
 
         return uuid;
