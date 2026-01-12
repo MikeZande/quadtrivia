@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react";
-import { Difficulty, QuestionType, ResponseCode } from "./models/Types";
+import { Difficulty, QuestionType, RESPONSE_LABELS, ResponseCode } from "./models/Types";
 import { Question } from "./models/Question";
 import { QuestionResponse } from "./models/QuestionResponse";
 import { Category } from "./models/Category";
@@ -28,41 +28,30 @@ export default function Home() {
   // Fetch possible categories at page load.
   useEffect(() => {
     const fetchCategories = async () => {
-      try {
-        const categories = await getCategories();
-        setCategories(categories);
-      } catch (error) {
-        console.error(error);
-      }
+      const categories = await getCategories();
+      setCategories(categories);
     };
 
     fetchCategories();
   }, []);
 
   const loadQuestions = async () => {
-    try {
-      const response: QuestionResponse = await getQuestions(
-        questionAmount,
-        category,
-        difficulty,
-        questionType
-      );
-      setQuestions(response.questions);
-      setResponseCode(response.responseCode);
-      // Clear answers array:
-      setSelectedAnswers([]);
-    } catch (error) {
-      console.error(error);
-    }
+    const response: QuestionResponse = await getQuestions(
+      questionAmount,
+      category,
+      difficulty,
+      questionType
+    );
+
+    setQuestions(response.questions);
+    setResponseCode(response.responseCode);
+    // Clear answers array:
+    setSelectedAnswers([]);
   };
 
   const checkAnswers = async () => {
-    try {
-      const response: AnswerResponse[] = await submitAnswers(selectedAnswers);
-      setAnswersState(response);
-    } catch (error) {
-      console.error(error);
-    }
+    const response: AnswerResponse[] = await submitAnswers(selectedAnswers);
+    setAnswersState(response);
   }
 
   function handleNrInput(value: number) {
@@ -134,13 +123,13 @@ export default function Home() {
 
           {responseCode && (
             <p 
-              className={`mt-3 text-m text-center text-wrap ${
+              className={`text-m text-center text-wrap ${
                 responseCode === "SUCCESS" 
                   ? "text-green-500"
                   : "text-red-500"
               }`}
             >
-              {responseCode}
+              {RESPONSE_LABELS[responseCode] ?? "Unknown error occurred"}
             </p>
           )}
         </div>
