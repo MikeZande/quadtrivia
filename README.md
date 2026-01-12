@@ -1,24 +1,27 @@
 ## Trivia Webapplicatie
 Een trivia webapplicatie met twee API endpoints /questions /checkanswers. Vragen en antwoorden komen van "https://opentdb.com/". Backend gemaakt met Java Spring Boot, en frontend met React.
 
-## Build / Run
-### 1. Clone the repo <br>
+## Bouwen en Uitvoeren
+### 1. Open terminals <br>
+Open 2 terminals zoals bijvoorbeeld command prompt. <br>
+
+### 1. Clone de repo (Terminal 1) <br>
 ```git clone https://github.com/MikeZande/quadtrivia```
 
-### 2. Frontend <br>
-Navigate to frontend directory <br>
-```cd frontend``` <br>
-Install npm packages <br>
+### 2. Frontend (Terminal 1) <br>
+Navigeer naar de frontend directory <br>
+```cd quadtrivia\frontend``` <br>
+Installeer npm packages <br>
 ```npm install```<br>
-Build frontend <br>
+Bouw frontend <br>
 ```npm run build```<br>
-Run frontend <br>
+Frontend uitvoeren <br>
 ```npm start```<br>
 
-### 3. Backend <br>
-Navigate to backend directory<br>
-```cd backend```<br>
-Run backend <br>
+### 3. Backend (Terminal 2) <br>
+Navigeer naar de backend directory<br>
+```cd quadtrivia\backend```<br>
+Backend uitvoeren <br>
 ```./mvnw spring-boot:run```<br>
 
 ### 4. Uitvoeren
