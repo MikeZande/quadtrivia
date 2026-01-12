@@ -2,6 +2,8 @@
 Een trivia webapplicatie met twee API endpoints /questions /checkanswers. Vragen en antwoorden komen van "https://opentdb.com/". Backend gemaakt met Java Spring Boot, en frontend met React.
 
 ## Bouwen en Uitvoeren
+Vereisten: Node.js, Java. 
+
 ### 1. Open terminals <br>
 Open 2 terminals zoals bijvoorbeeld command prompt. <br>
 
